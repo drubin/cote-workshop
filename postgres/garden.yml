@@ -1,0 +1,19 @@
+module:
+  description: postgres
+  type: container
+  name: postgres
+  image: sameersbn/postgresql:9.6-1
+  services:
+    - name: postgres
+      volumes:
+        - name: data
+          containerPath: /db-data
+      ports:
+        - name: db
+          containerPort: 5432
+      env:
+        DB_USER: cote
+        DB_PASS: ohgath2ig8eoP8
+        DB_NAME: cote
+      healthCheck:
+        command: [psql, -w, -U, cote, -d, cote, -c, "SELECT 1"]

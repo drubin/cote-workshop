@@ -1,0 +1,69 @@
+project:
+  name: cote-workshop
+  environments:
+    - name: local
+      providers:
+        - name: local-kubernetes
+module:
+  description: cote-workshop
+  type: container
+  name: cote-workshop
+  services:
+    - name: end-user
+      command: ["node", "end-user/server.js"]
+      env:
+        PG: true
+        COTE_MULTICAST_ADDRESS: "239.1.11.131"
+        #COTE_DISCOVERY_REDIS_HOST: redis
+      dependencies:
+        - fixture
+      ports:
+        - name: http
+          containerPort: 5001
+      ingresses:
+        - path: /
+          port: http
+    - name: payment-service
+      command: ["node", "services/payment-service.js"]
+      dependencies:
+        - fixture
+      env:
+        PG: true
+        COTE_MULTICAST_ADDRESS: "239.1.11.131"
+        #COTE_DISCOVERY_REDIS_HOST: redis
+    
+    - name: product-service
+      command: ["node", "services/product-service.js"]
+      dependencies:
+        - fixture
+      env:
+        PG: true
+        COTE_MULTICAST_ADDRESS: "239.1.11.131"
+        #COTE_DISCOVERY_REDIS_HOST: redis
+
+    - name: purchase-service
+      command: ["node", "services/purchase-service.js"]
+      dependencies:
+        - fixture
+      env:
+        PG: true
+        COTE_MULTICAST_ADDRESS: "239.1.11.131"
+        #COTE_DISCOVERY_REDIS_HOST: redis
+
+    - name: user-service
+      command: ["node", "services/user-service.js"]
+      dependencies:
+        - fixture
+      env:
+        PG: true
+        COTE_MULTICAST_ADDRESS: "239.1.11.131"
+        #COTE_DISCOVERY_REDIS_HOST: redis
+
+    - name: fixture
+      command: ["node", "init-db.js"]
+      dependencies:
+        - postgres
+      env:
+        PG: true
+        COTE_MULTICAST_ADDRESS: "239.1.11.131"
+        #COTE_DISCOVERY_REDIS_HOST: redis
