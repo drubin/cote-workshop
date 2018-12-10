@@ -9,14 +9,30 @@ module:
   type: container
   name: cote-workshop
   services:
-    - name: end-user
-      command: ["node", "end-user/server.js"]
+    - name: admin
+      command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node admin/server.js"]
       env:
         PG: true
-        COTE_MULTICAST_ADDRESS: "239.1.11.131"
-        #COTE_DISCOVERY_REDIS_HOST: redis
+        COTE_DISCOVERY_REDIS_HOST: redis
       dependencies:
         - fixture
+        - redis
+      ports:
+        - name: http
+          containerPort: 5000
+      ingresses:
+        - path: /
+          port: http
+          hostname: admin.cote-workshop.local.app.garden
+
+    - name: end-user
+      command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node end-user/server.js"]
+      env:
+        PG: true
+        COTE_DISCOVERY_REDIS_HOST: redis
+      dependencies:
+        - fixture
+        - redis
       ports:
         - name: http
           containerPort: 5001
@@ -24,46 +40,45 @@ module:
         - path: /
           port: http
     - name: payment-service
-      command: ["node", "services/payment-service.js"]
+      command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node services/payment-service.js"]
       dependencies:
         - fixture
+        - redis
       env:
         PG: true
-        COTE_MULTICAST_ADDRESS: "239.1.11.131"
-        #COTE_DISCOVERY_REDIS_HOST: redis
+        COTE_DISCOVERY_REDIS_HOST: redis
     
     - name: product-service
-      command: ["node", "services/product-service.js"]
+      command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node services/product-service.js"]
       dependencies:
         - fixture
+        - redis
       env:
         PG: true
-        COTE_MULTICAST_ADDRESS: "239.1.11.131"
-        #COTE_DISCOVERY_REDIS_HOST: redis
+        COTE_DISCOVERY_REDIS_HOST: redis
 
     - name: purchase-service
-      command: ["node", "services/purchase-service.js"]
+      command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node services/purchase-service.js"]
       dependencies:
         - fixture
+        - redis
       env:
         PG: true
-        COTE_MULTICAST_ADDRESS: "239.1.11.131"
-        #COTE_DISCOVERY_REDIS_HOST: redis
+        COTE_DISCOVERY_REDIS_HOST: redis
 
     - name: user-service
-      command: ["node", "services/user-service.js"]
+      command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node services/user-service.js"]
       dependencies:
         - fixture
+        - redis
       env:
         PG: true
-        COTE_MULTICAST_ADDRESS: "239.1.11.131"
-        #COTE_DISCOVERY_REDIS_HOST: redis
+        COTE_DISCOVERY_REDIS_HOST: redis
 
     - name: fixture
-      command: ["node", "init-db.js"]
+      command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node init-db.js"]
       dependencies:
         - postgres
       env:
         PG: true
-        COTE_MULTICAST_ADDRESS: "239.1.11.131"
-        #COTE_DISCOVERY_REDIS_HOST: redis
+        COTE_DISCOVERY_REDIS_HOST: redis
