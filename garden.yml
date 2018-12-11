@@ -1,25 +1,31 @@
+# Project defnition and list of possible environments 
 project:
   name: cote-workshop
   environments:
     - name: local
       providers:
         - name: local-kubernetes
+        
+# Module defintion
 module:
   description: cote-workshop
   type: container
   name: cote-workshop
+  # List of deployments
   services:
     - name: admin
+      # We have to auto inject `DISCOVERY_HOSTNAME` to the value of `POD_IP` which garden injects
       command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node admin/server.js"]
       env:
         PG: true
         COTE_DISCOVERY_REDIS_HOST: redis
       dependencies:
-        - fixture
+        - postgres
         - redis
       ports:
         - name: http
           containerPort: 5000
+      # Public exposed endpoints via the lb
       ingresses:
         - path: /
           port: http
@@ -31,18 +37,37 @@ module:
         PG: true
         COTE_DISCOVERY_REDIS_HOST: redis
       dependencies:
-        - fixture
+        - postgres
         - redis
       ports:
         - name: http
           containerPort: 5001
+      # Public exposed endpoints via the lb
       ingresses:
         - path: /
           port: http
+      
+    - name: monitoring
+      command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node monitor.js"]
+      env:
+        PG: true
+        COTE_DISCOVERY_REDIS_HOST: redis
+      dependencies:
+        - postgres
+        - redis
+      ports:
+        - name: http
+          containerPort: 5555
+      # Public exposed endpoints via the lb
+      ingresses:
+        - path: /
+          port: http
+          hostname: monitor.cote-workshop.local.app.garden
+
     - name: payment-service
       command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node services/payment-service.js"]
       dependencies:
-        - fixture
+        - postgres
         - redis
       env:
         PG: true
@@ -51,7 +76,7 @@ module:
     - name: product-service
       command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node services/product-service.js"]
       dependencies:
-        - fixture
+        - postgres
         - redis
       env:
         PG: true
@@ -60,7 +85,7 @@ module:
     - name: purchase-service
       command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node services/purchase-service.js"]
       dependencies:
-        - fixture
+        - postgres
         - redis
       env:
         PG: true
@@ -69,7 +94,7 @@ module:
     - name: user-service
       command: ["/bin/sh", "-c", "DISCOVERY_HOSTNAME=$POD_IP node services/user-service.js"]
       dependencies:
-        - fixture
+        - postgres
         - redis
       env:
         PG: true

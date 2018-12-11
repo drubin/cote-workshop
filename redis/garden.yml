@@ -1,5 +1,5 @@
 module:
-  description: redis service
+  description: redis service used for cote's descovery method
   type: container
   name: redis
   image: redis:5.0.2-alpine

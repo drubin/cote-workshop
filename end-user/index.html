@@ -53,7 +53,7 @@
 <h1>Products</h1>
 <div ng-repeat="product in products | orderBy:'-id' track by product.id" class="col-xs-2">
     <p><strong>{{product.name || 'a' }}</strong></p>
-    <img class="img-thumbnail" ng-src="http://lorempixel.com/100/100/food/{{product.id % 10}}/" alt=""/>
+    <img class="img-thumbnail" ng-src="https://source.unsplash.com/category/food/480x640" alt=""/>
     <p>{{product.stock}} in stock</p>
     <button type="button" class="btn btn-sm" ng-class="{'btn-success': user.balance >= product.price}" ng-disabled="user.balance < product.price" ng-click="purchase(product.id)" ng-style="{'visibility': product.stock > 0 ? 'visible' : 'hidden' }">
         Buy &mdash; ${{product.price}}
